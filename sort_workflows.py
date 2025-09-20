@@ -2,6 +2,15 @@ import json
 from datetime import datetime
 import sys
 
+# this program takes json file (list of n8n workflows), date, and 
+# output file(optional) as input.
+# it sorts Workflows by createdAt date in descending order and 
+# removes all workflows older than input date.
+# from "https://n8narena.com/" take the list of worklfows as json. 
+# u can download json from: 
+# https://n8narena.com/stats_aggregate_workflows.json 
+# Some of the workflows are free to use. Download this workflows json and
+# Give it as input to this program.
 def sort_json_by_created_at(input_file, output_file=None):
     with open(input_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
