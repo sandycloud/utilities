@@ -34,4 +34,8 @@ conclusion: with libx265 we get better compression but it takes more time.
 
 AV1
 ----
+#record Live Screen to av1 format.
 ffmpeg -loglevel info -f dshow -framerate 10 -video_device_number 0 -thread_queue_size 256 -i video="screen-capture-recorder" -f dshow -audio_device_number 0 -i audio="virtual-audio-capturer" -filter_complex amix=inputs=1 -c:a libopus -c:v libsvtav1 -r 10 -crf 50 -preset 8 av1_recording.mkv
+
+#convert video to AV1 format
+ffmpeg.exe -i D:\temp\delete\BigBuckBunny.mp4 -c:a libopus -c:v libsvtav1 -r 10 -crf 50 -preset 8 av1_bigbuckbunny.mkv
