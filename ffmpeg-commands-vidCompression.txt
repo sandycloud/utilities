@@ -1,0 +1,33 @@
+Hevc using CPU only
+ffmpeg -i "E:\projects\freelancer\Compress19Videosto720P\eks-recording-sample.mp4" -c:v libx265 -vtag hvc1 -preset medium -crf 34 -vf "scale=1280:-2" -threads 2 -c:a copy  E:\projects\freelancer\Compress19Videosto720P\test-hevc1-crf34medium.mp4
+
+ffmpeg -i "E:\projects\freelancer\Compress19Videosto720P\eks-recording-sample.mp4" -c:v libx265 -vtag hvc1 -preset medium -crf 39 -vf "scale=1280:-2" -threads 2 -c:a copy  E:\projects\freelancer\Compress19Videosto720P\test-hevc1-crf39medium.mp4
+
+lower value of crf gives better video quality, but outputs bigger file, takes more time.
+
+--set the color format to yuv420p
+ffmpeg -i "E:\temp\delete\videos\aws-eks-rec1zoom_9minAVC-sample.mp4" -vf "scale=1920:-2,format=yuv420p" -c:v libx265 -vtag hvc1 -x265-params range=full -preset medium -crf 40 -threads 2 -c:a copy E:\temp\delete\videos\aws-eks-rec1-zoom_1-x265-crf40.mp4
+
+ffmpeg -i "E:\temp\delete\videos\aws-eks-rec1zoom_9minAVC-sample.mp4" -c:v libx265 -vtag hvc1 -x265-params range=full -preset medium -crf 40 -vf "scale=1920:-2" -threads 2 -c:a copy E:\temp\delete\videos\aws-eks-rec1-zoom_1-x265-crf40.mp4
+
+hevc using HW acceleration
+ffmpeg -init_hw_device qsv=hw -i "E:\projects\freelancer\Compress19Videosto720P\eks-recording-sample.mp4" -c:v hevc_qsv -vtag hvc1 -global_quality 28 -look_ahead 1  -vf "scale=1280:-2" -vsync vfr -c:a copy E:\projects\freelancer\Compress19Videosto720P\test-hevc_qsv-gq28la1.mp4
+
+ffmpeg -init_hw_device qsv=hw -i "E:\projects\freelancer\Compress19Videosto720P\eks-recording-sample.mp4" -c:v hevc_qsv -vtag hvc1 -global_quality 38 -look_ahead 1 -vf "scale=1280:-2" -vsync vfr -c:a copy E:\projects\freelancer\Compress19Videosto720P\test-hevc_qsv-gq38la1.mp4
+
+global_quality : values from 1 to 51, lower value gives better video quality.
+
+
+to do VMAF scoring against original source file
+ffmpeg -i distorted.mp4 -i reference.mp4 -filter_complex "[0:v]setpts=PTS-STARTPTS[ref];[1:v]setpts=PTS-STARTPTS[dist];[dist][ref]libvmaf=log_path=vmaf.json:log_fmt=json" -f null -
+
+--speed up VMAF scoring using multi threads
+ffmpeg -threads 0 -i e:\temp\delete\videos\aws-eks-rec1-zoom_1-hevc_qsv-gq32-presetSlow.mp4 -i e:\temp\delete\videos\aws-eks-rec1zoom_9minAVC-sample.mp4  -filter_complex "[0:v]setpts=PTS-STARTPTS[ref];[1:v]setpts=PTS-STARTPTS[dist];[dist][ref]libvmaf=log_path=vmaf.json:log_fmt=json:n_threads=8"  -f null -
+
+ffmpeg -threads 0 -i e:\temp\delete\videos\aws-eks-rec1-zoom_1-x265-crf40.mp4 -i e:\temp\delete\videos\aws-eks-rec1zoom_9minAVC-sample.mp4  -filter_complex "[0:v]setpts=PTS-STARTPTS[ref];[1:v]setpts=PTS-STARTPTS[dist];[dist][ref]libvmaf=log_path=vmaf.json:log_fmt=json:n_threads=4"  -f null -
+
+-- Further speed up calculating VMAF scoring by using GPU to decode video and keep VMAF calculation on CPU.
+--not tried this yet
+ffmpeg -init_hw_device qsv=hw -i av1.mp4 -i source_h264.mp4 -filter_complex "[0:v]hwdownload,format=yuv420p[dist];[1:v]hwdownload,format=yuv420p[ref]; [dist][ref]libvmaf=model_path=D:/programs/ffmpeg/conf/vmaf_v0.6.1.json:n_threads=8" -f null -
+
+conclusion: with libx265 we get better compression but it takes more time.
