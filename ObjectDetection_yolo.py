@@ -1,5 +1,6 @@
 import cv2
 from ultralytics import YOLO
+#pre-requisite: Ensure the yolo python libraries are installed
 
 # Load the YOLOv8 model
 model = YOLO("yolov8m.pt")
