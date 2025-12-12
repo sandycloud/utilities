@@ -39,3 +39,14 @@ ffmpeg -loglevel info -f dshow -framerate 10 -video_device_number 0 -thread_queu
 
 #convert video to AV1 format
 ffmpeg -i D:\temp\delete\BigBuckBunny.mp4 -c:a libopus -c:v libsvtav1 -r 10 -crf 50 -preset 8 av1_bigbuckbunny.mkv
+
+ffmpeg -i input_4k.mp4 \
+  -c:v av1_nvenc \
+  -preset p6 \          # P1 (fastest) to P7 (slowest/best). P6 is the sweet spot for 4090.
+  -cq 30 \              # Constant Quality. Adaptive logic will tune this (range 20-50).
+  -b:v 0 \              # Disable fixed bitrate to let CQ drive the quality.
+  -rc-lookahead 20 \    # Improves quality by looking ahead, small hit to latency.
+  -spatial-aq 1 \       # Spatial Adaptive Quantization (distributes bits to complex areas).
+  -temporal-aq 1 \      # Temporal Adaptive Quantization.
+  -c:a copy \           # Copy audio to save processing power.
+  output_compressed.mp4
